@@ -1,6 +1,7 @@
 """Make a single chat completion call and report its token usage."""
 
 import os
+import subprocess
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -13,16 +14,46 @@ client = OpenAI()
 
 # Overridable from .env so the model can change without editing code
 # (e.g. an OpenRouter model name when OPENAI_BASE_URL points there).
-MODEL = os.environ.get("MODEL", "gpt-5")
+MODEL = os.environ.get("MODEL", "gpt-5-mini")
 
-SYSTEM_PROMPT = "You are a helpful coding assistant. Answer concisely and include examples when useful."
+SYSTEM_PROMPT = (
+    "You are a coding agent. Your job is to code. Answer and help coding questions. "
+    "Use the bash tool to inspect files."
+    "Answer back to the user once exploration is done"
+)
+
+BASH_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "bash",
+        "description": "Run a shell command and return its output",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "string",
+                    "description": "The shell command to run",
+                }
+            }, 
+            "required": ["command"],
+        },
+    },
+}
+
+def bash(command):
+	result = subprocess.run(command, shell=True, capture_output=True, text=True)
+	return result.stdout + result.stderr
+
+
+prompt = input("Enter prompt: ")
 
 response = client.chat.completions.create(
     model=MODEL,
     messages=[
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": "How do I read a JSON file in Python?"},
+        {"role": "user", "content": prompt},
     ],
+    tools=[BASH_TOOL]
 )
 
 text = response.choices[0].message.content
