@@ -1,6 +1,8 @@
 import json
 import subprocess
 
+from skills import read_skill
+
 TOOL_SCHEMAS = [
     {
         "type": "function",
@@ -36,6 +38,23 @@ TOOL_SCHEMAS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_skill",
+            "description": "Load a skill's instructions by name. Read a skill before doing a task it covers.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the skill to read",
+                    }
+                },
+                "required": ["name"],
+            },
+        },
+    },
 ]
 
 
@@ -57,6 +76,7 @@ def read_file(path):
 TOOLS = {
     "bash": bash,
     "read_file": read_file,
+    "read_skill": read_skill,
 }
 
 

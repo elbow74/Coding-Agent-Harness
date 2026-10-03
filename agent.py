@@ -1,11 +1,15 @@
 from llm import MODEL, call_llm
+from skills import skills_prompt
 from tools import call_tool
 from ui import ask, show_answer, show_banner, show_goodbye, show_tool_call, thinking
 
 SYSTEM_PROMPT = (
     "You are a coding agent. Your job is to code. Answer and help coding questions. "
     "Use the bash tool to inspect files. "
-    "Answer back to the user once exploration is done."
+    "Answer back to the user once exploration is done.\n\n"
+    "When a task matches one of these skills, call read_skill to load its instructions "
+    "and follow them:\n"
+    f"{skills_prompt()}"
 )
 
 messages = [{"role": "system", "content": SYSTEM_PROMPT}]
