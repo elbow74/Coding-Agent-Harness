@@ -35,7 +35,16 @@ def format_args(arguments):
         args = json.loads(arguments)
     except json.JSONDecodeError:
         return arguments
-    return ", ".join(str(value) for value in args.values())
+    # Keeps the header to one short line when an argument is long, like write_file content.
+    return ", ".join(shorten(str(value)) for value in args.values())
+
+
+def shorten(value, limit=60):
+    lines = value.splitlines() or [""]
+    first = lines[0]
+    if len(first) > limit or len(lines) > 1:
+        return first[:limit] + "…"
+    return first
 
 
 def show_tool_call(name, arguments, output):

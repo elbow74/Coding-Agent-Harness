@@ -1,3 +1,4 @@
+from context import reminder
 from llm import MODEL, call_llm
 from skills import skills_prompt
 from tools import call_tool
@@ -24,7 +25,9 @@ try:
         if not prompt:
             continue
 
-        messages.append({"role": "user", "content": prompt})
+        # Sent with every message so the branch and time stay current across a long session.
+        content = f"{prompt}\n\n<reminder>\n{reminder()}\n</reminder>"
+        messages.append({"role": "user", "content": content})
 
         while True:
             with thinking():
